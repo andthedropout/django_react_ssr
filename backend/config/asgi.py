@@ -1,5 +1,5 @@
 """
-ASGI config for gagglehomev2 project.
+ASGI config for trubuilder_landing project.
 
 It exposes the ASGI callable as a module-level variable named `application`.
 

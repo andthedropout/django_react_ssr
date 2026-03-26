@@ -69,7 +69,7 @@ ALLOWED_HOSTS.extend([
 
 # CSRF Trusted Origins for HTTPS POST requests when DEBUG is False
 # Read from environment variable or use localhost defaults
-csrf_origins_env = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000")
+csrf_origins_env = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8002,http://127.0.0.1:8002")
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins_env.split(",")]
 
 # Add Railway public domain if available
@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     "users",
     "themes",
     "blog",
+    "subscribers",
 ]
 
 MIDDLEWARE = [
@@ -278,7 +279,7 @@ if DEBUG:
 
 # OpenRouter AI Configuration
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
-SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
+SITE_URL = os.getenv('SITE_URL', 'http://localhost:8002')
 
 # Markdownx settings for blog system
 MARKDOWNX_MARKDOWN_EXTENSIONS = [

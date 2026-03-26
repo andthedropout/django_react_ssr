@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => ({
     },
     hmr: {
       overlay: true,
-      clientPort: 5173,
+      clientPort: 5175,
       protocol: 'ws',
     },
     middlewareMode: false,
@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => ({
     },
     proxy: {
       '/api': {
-        target: 'http://web:8000',
+        target: 'http://web:8002',
         changeOrigin: true,
         secure: false,
         cookieDomainRewrite: {
@@ -67,11 +67,11 @@ export default defineConfig(({ mode }) => ({
         }
       },
       '/admin': {
-        target: 'http://web:8000',
+        target: 'http://web:8002',
         changeOrigin: true,
       },
       '/static': {
-        target: 'http://web:8000',
+        target: 'http://web:8002',
         changeOrigin: true,
       },
     }

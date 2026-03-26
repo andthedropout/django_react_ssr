@@ -1,0 +1,176 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrueBuilder.ai | Blueprint</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background-color: #3656CE;
+      margin: 0;
+      color: white;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .hairline-grid {
+      background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 100px 100px;
+    }
+    .corner-marker {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-color: white;
+    }
+    .corner-tl { top: -1px; left: -1px; border-top-width: 1px; border-left-width: 1px; }
+    .corner-tr { top: -1px; right: -1px; border-top-width: 1px; border-right-width: 1px; }
+    .corner-bl { bottom: -1px; left: -1px; border-bottom-width: 1px; border-left-width: 1px; }
+    .corner-br { bottom: -1px; right: -1px; border-bottom-width: 1px; border-right-width: 1px; }
+    
+    .headline-leading {
+      line-height: 0.9;
+    }
+    
+    .wireframe-circle {
+      border: 1px dashed rgba(255,255,255,0.3);
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col relative overflow-hidden">
+    <!-- Background Hairline Grid -->
+    <div class="absolute inset-0 hairline-grid pointer-events-none opacity-50"></div>
+
+    <!-- Navigation -->
+    <nav class="relative z-20 border-b border-white/20 h-20 flex items-center justify-between px-6 md:px-12 bg-[#3656CE]">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8">
+          <svg viewBox="0 0 100 100" class="w-full h-full text-white fill-current">
+            <path d="M20 10 H80 V25 H57 V90 H42 V25 H20 V10 Z" />
+            <path d="M57 40 H75 C85 40 90 45 90 55 V75 C90 85 85 90 75 90 H42 V75 H75 V55 H57 V40 Z" />
+          </svg>
+        </div>
+        <span class="text-lg font-extrabold tracking-tighter">TrueBuilder.ai</span>
+      </div>
+      
+      <div class="hidden lg:block font-mono text-[11px] uppercase tracking-[0.2em] text-white/60">
+        TRUEBUILDER.AI — ARTIFICIAL INTELLIGENCE FOR CONSTRUCTION
+      </div>
+
+      <div>
+        <a href="#" id="nav-request-access" class="font-mono text-[11px] uppercase tracking-wider border border-white px-5 py-2 hover:bg-white hover:text-[#3656CE] transition-all">
+          [ REQUEST ACCESS ]
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col lg:grid lg:grid-cols-2 relative">
+      
+      <!-- Left Content: Typography -->
+      <div class="p-8 md:p-12 lg:p-24 flex flex-col justify-center border-r border-white/20 relative">
+        <div class="mb-4 font-mono text-[11px] uppercase tracking-[0.1em] text-white/60">
+          [ PROJECT_STATUS: INITIALIZING ]
+        </div>
+        
+        <div class="relative">
+          <div class="absolute -left-6 md:-left-10 top-0 bottom-0 w-[1px] bg-white opacity-40"></div>
+          <h1 class="text-[64px] md:text-[80px] lg:text-[96px] font-[700] headline-leading tracking-tight mb-8">
+            The Future<br>Is Coming.
+          </h1>
+        </div>
+
+        <div class="max-w-md">
+          <p class="text-white/70 text-lg mb-12 font-medium leading-relaxed">
+            Autonomous intelligence for high-stakes construction infrastructure. Precision systems for the next generation of builders.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Content: Wireframe -->
+      <div class="relative flex items-center justify-center p-12 overflow-hidden bg-[#3656CE]">
+        <div class="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] border border-white/20">
+          <div class="corner-marker corner-tl"></div>
+          <div class="corner-marker corner-tr"></div>
+          <div class="corner-marker corner-bl"></div>
+          <div class="corner-marker corner-br"></div>
+          
+          <!-- Animated/Static Wireframe Decor -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="wireframe-circle w-[90%] h-[90%] absolute"></div>
+            <div class="wireframe-circle w-[60%] h-[60%] absolute"></div>
+            <div class="wireframe-circle w-[30%] h-[30%] absolute"></div>
+            
+            <!-- TB Emblem Wireframe -->
+            <div class="w-32 h-32 md:w-48 md:h-48 opacity-40 relative z-10">
+              <svg viewBox="0 0 100 100" class="w-full h-full text-white fill-current">
+                <path d="M20 10 H80 V25 H57 V90 H42 V25 H20 V10 Z" />
+                <path d="M57 40 H75 C85 40 90 45 90 55 V75 C90 85 85 90 75 90 H42 V75 H75 V55 H57 V40 Z" />
+              </svg>
+            </div>
+
+            <!-- Crosshair lines -->
+            <div class="absolute top-0 bottom-0 left-1/2 w-[0.5px] bg-white/20"></div>
+            <div class="absolute left-0 right-0 top-1/2 h-[0.5px] bg-white/20"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Section Overlay -->
+      <div class="lg:absolute lg:bottom-24 lg:left-1/2 lg:-translate-x-1/2 w-full max-w-[640px] px-6 py-12 lg:py-0 z-30">
+        <div class="relative p-8 md:p-12 border border-white/20 bg-[#3656CE]/90 backdrop-blur-md">
+          <div class="corner-marker corner-tl"></div>
+          <div class="corner-marker corner-tr"></div>
+          <div class="corner-marker corner-bl"></div>
+          <div class="corner-marker corner-br"></div>
+          
+          <div class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/60 mb-6">
+            REQUEST EARLY ACCESS
+          </div>
+          
+          <form class="flex flex-col sm:flex-row gap-0 border border-white/30">
+            <input 
+              type="email" 
+              placeholder="USER@ORGANIZATION.COM" 
+              required
+              class="flex-1 bg-white text-[#3656CE] placeholder-[#3656CE]/40 px-6 py-4 outline-none font-mono text-sm tracking-wider"
+            >
+            <button 
+              id="cta-submit"
+              type="submit" 
+              class="bg-white border-l border-white/30 text-[#3656CE] px-10 py-4 font-bold hover:bg-[#E6EFF1] transition-all whitespace-nowrap text-sm tracking-widest"
+            >
+              SUBMIT
+            </button>
+          </form>
+          
+          <div class="mt-4 font-mono text-[9px] text-white/30 uppercase tracking-widest">
+            * ENCRYPTED CONNECTION ESTABLISHED. DATA PRIVACY COMPLIANT.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Status Bar Footer -->
+    <footer class="relative z-20 border-t border-white/20 bg-[#3656CE] h-14 flex items-center px-6 md:px-12">
+      <div class="flex items-center gap-3 font-mono text-[11px] uppercase tracking-widest">
+        <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+        <span class="text-white">BATCH 001 — NOW ACCEPTING</span>
+        <span class="hidden md:inline text-white/30 mx-4">|</span>
+        <span class="hidden md:inline text-white/40">SF // LDN // DXB</span>
+      </div>
+      <div class="ml-auto font-mono text-[11px] text-white/40 hidden sm:block">
+        VER: 2.0.4 // © 2024
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

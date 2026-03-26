@@ -61,10 +61,10 @@ if docker compose ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null | grep 
     # Check if web container is responding
     echo ""
     echo "Testing web server..."
-    if curl -f http://localhost:8000 > /dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC} Web server is responding at http://localhost:8000"
+    if curl -f http://localhost:8002 > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Web server is responding at http://localhost:8002"
     else
-        echo -e "${RED}✗${NC} Web server not responding at http://localhost:8000"
+        echo -e "${RED}✗${NC} Web server not responding at http://localhost:8002"
         echo "  Check logs: docker compose logs web"
         ERRORS=$((ERRORS + 1))
     fi
@@ -113,8 +113,8 @@ if [ $ERRORS -eq 0 ]; then
     echo ""
     echo "Next steps:"
     echo "1. Start containers: docker compose up"
-    echo "2. Access app: http://localhost:8000"
-    echo "3. Django admin: http://localhost:8000/admin"
+    echo "2. Access app: http://localhost:8002"
+    echo "3. Django admin: http://localhost:8002/admin"
     exit 0
 else
     echo -e "${RED}Setup verification found $ERRORS error(s)${NC}"

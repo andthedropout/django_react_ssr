@@ -187,6 +187,6 @@ RUN mkdir -p /mnt/media && chown -R python:python /mnt/media
 
 ENTRYPOINT ["/app/bin/docker-entrypoint-web"]
 
-EXPOSE 8000
+EXPOSE 8002
 
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -1,5 +1,5 @@
 """
-WSGI config for gagglehomev2 project.
+WSGI config for trubuilder_landing project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

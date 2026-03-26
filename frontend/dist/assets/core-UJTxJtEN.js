@@ -1,1 +1,0 @@
-import{g as e}from"./react-vendor-MaXSxttp.js";import{r as o}from"./core-WQA5OQ4D.js";const r=e(o()),t=Object.freeze(Object.defineProperty({__proto__:null,default:r},Symbol.toStringTag,{value:"Module"}));export{t as c};

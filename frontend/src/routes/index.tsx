@@ -1,32 +1,29 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Home from '@/pages/static/Home'
 
-const SSR_ENABLED = false  // ❌ SSR is DISABLED for this route (client-only rendering)
-
-function HomeWrapper() {
-  return <Home />
-}
-
 export const Route = createFileRoute('/')({
-  ssr: SSR_ENABLED,
-  component: HomeWrapper,
+  component: Home,
   head: () => ({
     meta: [
       {
         name: 'description',
-        content: 'Your clean Django + React starter template - build modern web applications with ease',
+        content: 'TrueBuilder.ai — AI-powered construction intelligence. The future is coming. Sign up for early access.',
       },
       {
         name: 'keywords',
-        content: 'django, react, vite, starter template, web development',
+        content: 'truebuilder, AI, construction, intelligence, building, future',
       },
       {
         property: 'og:title',
-        content: 'Welcome | My App',
+        content: 'TrueBuilder.ai — The Future Is Coming',
       },
       {
         property: 'og:description',
-        content: 'Your clean Django + React starter template',
+        content: 'AI-powered construction intelligence. Be the first to experience what\'s next.',
+      },
+      {
+        property: 'og:type',
+        content: 'website',
       },
     ],
   }),

@@ -1,5 +1,5 @@
 """
-URL configuration for gagglehomev2 project.
+URL configuration for trubuilder_landing project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -48,6 +48,8 @@ api_patterns = [
     path("", include("themes.urls")),
     # Blog URLs
     path("blog/", include("blog.urls")),
+    # Subscriber URLs
+    path("", include("subscribers.urls")),
 ]
 
 @ensure_csrf_cookie

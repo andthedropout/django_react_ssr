@@ -238,7 +238,7 @@ Return ONLY the JSON object, no additional text."""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": getattr(settings, 'SITE_URL', 'http://localhost:8000'),
+            "HTTP-Referer": getattr(settings, 'SITE_URL', 'http://localhost:8002'),
             "X-Title": "Theme Generator"
         }
         

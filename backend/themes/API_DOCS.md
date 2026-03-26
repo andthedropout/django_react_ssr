@@ -148,7 +148,7 @@ For AI theme generation to work, add to your environment:
 ```bash
 # OpenRouter AI Configuration
 OPENROUTER_API_KEY=your_openrouter_api_key_here
-SITE_URL=http://localhost:8000  # Or your production URL
+SITE_URL=http://localhost:8002  # Or your production URL
 ```
 
 Get your OpenRouter API key from: https://openrouter.ai/keys
