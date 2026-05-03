@@ -15,20 +15,6 @@ export function Header() {
           <Link to="/" className="font-bold text-lg">
             Home
           </Link>
-          <Link
-            to="/blog"
-            className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-          >
-            Blog
-          </Link>
-          {user?.is_staff && (
-            <Link
-              to="/blog/dashboard"
-              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-            >
-              CMS Dashboard
-            </Link>
-          )}
         </div>
 
         {/* Center section - Optional centered nav */}

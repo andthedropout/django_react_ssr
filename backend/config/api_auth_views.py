@@ -1,16 +1,15 @@
 import json
 import logging
-from django.http import JsonResponse, HttpResponse
-from django.contrib.auth import authenticate, login as django_login, logout as django_logout
-from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.contrib.auth import authenticate, get_user_model, login as django_login, logout as django_logout
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.middleware.csrf import get_token
-from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError
 
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -173,27 +172,6 @@ class AuthStatusView(View):
 
 @ensure_csrf_cookie
 def get_csrf_token(request):
-    """
-    A view to ensure the CSRF cookie is set and returned.
-    The frontend can make a GET request to this endpoint before making POST requests.
-    """
-    # Explicitly get the token to ensure it's set in the cookie
-    token = get_token(request)
-    
-    # For debugging purposes
-    cookie_header = request.META.get('HTTP_COOKIE', '')
-    
-    response = JsonResponse({
-        'status': 'success',
-        'message': 'CSRF cookie set',
-        'csrfToken': token,  # Add the actual token to the response
-        'debug': {
-            'cookie_header': cookie_header,
-            'csrf_cookie_set': bool(token),
-        }
-    })
-    
-    # Add debug headers (visible in browser network inspector)
-    response['X-CSRF-Cookie-Debug'] = 'set'
-    
-    return response 
+    """Set the CSRF cookie and return the token to the SPA so it can attach
+    it as the X-CSRFToken header on subsequent POST/PUT/DELETE requests."""
+    return JsonResponse({'csrfToken': get_token(request)})

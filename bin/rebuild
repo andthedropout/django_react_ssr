@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Rebuild the prod stack correctly. ssr + nginx MUST be rebuilt together
+# because both pull from the same frontend-build stage — the content-hashed
+# asset filenames change every build, so mixing old nginx + new ssr (or vice
+# versa) produces 404s on /assets/index-*.js when the SSR'd HTML references
+# hashes nginx doesn't have.
+#
+#   bin/rebuild          rebuild + restart ssr + nginx (frontend changes)
+#   bin/rebuild web      rebuild + restart web only (backend-only changes)
+#   bin/rebuild all      rebuild + restart everything
+set -e
+
+cd "$(dirname "$0")/.."
+
+case "${1:-frontend}" in
+  frontend|fe|ssr|nginx)
+    docker compose --profile prod build ssr nginx
+    docker compose --profile prod up -d --force-recreate ssr nginx
+    ;;
+  web|backend|be)
+    docker compose --profile prod build web
+    docker compose --profile prod up -d --force-recreate web
+    ;;
+  all)
+    docker compose --profile prod build
+    docker compose --profile prod up -d --force-recreate
+    ;;
+  *)
+    echo "Usage: $0 [frontend|web|all]" >&2
+    exit 1
+    ;;
+esac
+
+echo ""
+echo "✓ rebuilt + restarted"
+WEB_PORT=$(grep -E '^WEB_PORT=' .env | cut -d= -f2)
+echo "→ open http://localhost:${WEB_PORT}/"

@@ -1,59 +1,34 @@
 #!/usr/bin/env bash
-
+# Web container entrypoint: run migrations (with retry for serverless DB wake-up),
+# create the default superuser on first deploy, then exec the actual command.
 set -e
 
 cd /app/backend
 
-# Signal that app is starting up (nginx will return 503 while this file exists)
-touch /tmp/app_starting
-
-# Fast-path: Check if migrations are actually needed
-echo "Checking for pending migrations..."
-if python manage.py migrate --check > /dev/null 2>&1; then
-    echo "✅ All migrations already applied, skipping..."
+# Run migrations only if needed. Retry with exponential backoff (1s, 2s, 4s, 8s)
+# so cold-starting Postgres on Railway/Fly doesn't fail the boot.
+if python manage.py migrate --check >/dev/null 2>&1; then
+  echo "✅ migrations up to date"
 else
-    # Migrations needed - run with retry logic for serverless PostgreSQL wake-up
-    echo "Running database migrations..."
-    MAX_RETRIES=5
-    RETRY_COUNT=0
-
-    # Optimized exponential backoff: 1s, 2s, 4s, 8s (faster than old 2s, 4s, 6s, 8s, 10s)
-    until python manage.py migrate --noinput; do
-        RETRY_COUNT=$((RETRY_COUNT + 1))
-        if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-            echo "Migration failed after $MAX_RETRIES attempts"
-            rm -f /tmp/app_starting
-            exit 1
-        fi
-        WAIT_TIME=$((2 ** (RETRY_COUNT - 1)))  # 1, 2, 4, 8
-        echo "Migration failed, retrying in ${WAIT_TIME}s (attempt $RETRY_COUNT/$MAX_RETRIES)..."
-        sleep $WAIT_TIME
-    done
-fi
-
-# Create default superuser only on actual deployments (not on wake-ups or PR previews)
-# Check for Railway deployment ID, first-run marker, and skip PR environments
-if [ -n "$RAILWAY_DEPLOYMENT_ID" ] && [ ! -f /tmp/.superuser_created ]; then
-    # Skip superuser creation in PR preview environments
-    if [[ "$RAILWAY_ENVIRONMENT_NAME" =~ ^pr- ]]; then
-        echo "Skipping superuser creation (PR preview environment)"
-    else
-        echo "Creating default superuser..."
-        python manage.py create_default_superuser && touch /tmp/.superuser_created || true
+  echo "→ applying migrations..."
+  attempt=0
+  until python manage.py migrate --noinput; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 5 ]; then
+      echo "✗ migration failed after 5 attempts" >&2
+      exit 1
     fi
-else
-    echo "Skipping superuser creation (already exists or not a deployment)"
+    sleep $((2 ** (attempt - 1)))
+  done
 fi
 
-# App is ready - remove startup flag so nginx will route traffic normally
-rm -f /tmp/app_starting
-echo "✅ Application ready to accept traffic"
-
-# If supervisord is being started, ensure we're root and run it directly
-if [[ "$1" == "supervisord" ]]; then
-    echo "Starting supervisord (nginx + django + bun-ssr)..."
-    exec "$@"
+# Create the default superuser exactly once per deployment.
+if [ -n "$RAILWAY_DEPLOYMENT_ID" ] && [ ! -f /tmp/.superuser_created ]; then
+  if [[ "$RAILWAY_ENVIRONMENT_NAME" =~ ^pr- ]]; then
+    echo "→ skipping superuser (PR preview)"
+  else
+    python manage.py create_default_superuser && touch /tmp/.superuser_created || true
+  fi
 fi
 
-# Otherwise run the command as usual
 exec "$@"

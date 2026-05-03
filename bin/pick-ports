@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Pick host ports that aren't bound by anything else and write them to .env.
+# Solves the "two clones of this template fight over :8002" problem.
+#
+# Usage: bin/pick-ports [--force]
+#   --force  Reassign even if current values look free.
+#
+# Vars rewritten in .env:
+#   WEB_PORT      → host port for nginx (prod profile)
+#   DJANGO_PORT   → host port for gunicorn directly (dev profile)
+#   VITE_PORT     → host port for Vite dev server (dev profile)
+#
+# Tries to pick from a per-project deterministic range first (so the same project
+# tends to land on the same ports across reboots), then falls back to a random
+# free port if that range is taken.
+
+set -euo pipefail
+
+ENV_FILE="${ENV_FILE:-.env}"
+FORCE=0
+[ "${1:-}" = "--force" ] && FORCE=1
+
+if [ ! -f "$ENV_FILE" ]; then
+  echo "✗ $ENV_FILE not found. Run from project root, or copy .env.example first." >&2
+  exit 1
+fi
+
+# Hash the project name to a stable base port (8000-8999 range).
+# Match both `FOO=bar` and `export FOO=bar` styles in .env.
+project_name="$(grep -E '^(export[[:space:]]+)?COMPOSE_PROJECT_NAME=' "$ENV_FILE" \
+  | head -1 | sed -E 's/^(export[[:space:]]+)?COMPOSE_PROJECT_NAME=//' \
+  | tr -d '"' | tr -d "'")"
+project_name="${project_name:-app}"
+base=$(( 8000 + ( $(printf '%s' "$project_name" | cksum | cut -d' ' -f1) % 800 ) ))
+
+is_free() {
+  local p=$1
+  if command -v lsof >/dev/null 2>&1; then
+    ! lsof -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1
+  elif command -v ss >/dev/null 2>&1; then
+    ! ss -tln "sport = :$p" 2>/dev/null | tail -n +2 | grep -q .
+  else
+    # Last resort: try to bind via python.
+    ! python3 -c "import socket,sys
+s=socket.socket()
+try: s.bind(('127.0.0.1',$p)); s.close(); sys.exit(1)
+except: sys.exit(0)" 2>/dev/null
+  fi
+}
+
+pick_port() {
+  local preferred=$1
+  # Try preferred, then preferred+1..+99, then random.
+  for offset in $(seq 0 99); do
+    local p=$(( preferred + offset ))
+    if is_free "$p"; then echo "$p"; return; fi
+  done
+  while true; do
+    local p=$(( (RANDOM % 50000) + 10000 ))
+    if is_free "$p"; then echo "$p"; return; fi
+  done
+}
+
+current_value() {
+  grep -E "^$1=" "$ENV_FILE" | head -1 | cut -d= -f2 | tr -d '"' | tr -d "'" || true
+}
+
+upsert() {
+  local key=$1 val=$2
+  if grep -qE "^$key=" "$ENV_FILE"; then
+    # In-place sed (BSD + GNU compatible).
+    if sed --version >/dev/null 2>&1; then
+      sed -i -E "s|^$key=.*|$key=$val|" "$ENV_FILE"
+    else
+      sed -i '' -E "s|^$key=.*|$key=$val|" "$ENV_FILE"
+    fi
+  else
+    printf '\n%s=%s\n' "$key" "$val" >> "$ENV_FILE"
+  fi
+}
+
+assign() {
+  local key=$1 preferred=$2
+  local cur picked
+  cur="$(current_value "$key")"
+  if [ "$FORCE" -eq 0 ] && [ -n "$cur" ] && is_free "$cur"; then
+    echo "  $key=$cur (already free)"
+    return
+  fi
+  picked="$(pick_port "$preferred")"
+  upsert "$key" "$picked"
+  echo "  $key=$picked"
+}
+
+echo "→ picking ports for project '$project_name' (base $base):"
+assign WEB_PORT    "$base"
+assign DJANGO_PORT $((base + 1))
+assign VITE_PORT   $((base + 2))
+echo "✓ wrote port assignments to $ENV_FILE"

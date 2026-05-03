@@ -1,112 +1,72 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import viteReact from '@vitejs/plugin-react-swc'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { nitro } from 'nitro/vite'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  // Load env from root directory instead of frontend/
+export default defineConfig({
   envDir: '../',
-  publicDir: '../public',  // Use root public folder, not frontend/public
+  publicDir: '../public',
+
+  resolve: {
+    alias: { '@': path.resolve(__dirname, './src') },
+  },
 
   build: {
-    // Disable file watching during production builds to prevent infinite loops
-    watch: null,
-    // Enable aggressive minification for production
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.logs in production
-        drop_debugger: true,
-        passes: 2, // Run compression twice for better results
-      },
-      mangle: {
-        safari10: true, // Fix Safari 10+ issues
-      },
-    },
+    minify: 'esbuild',
     cssMinify: true,
-    // Specify the entry point for TanStack Router (client-side)
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
-      output: {
-        // Manual chunking to separate vendor code from app code
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'router': ['@tanstack/react-router', '@tanstack/react-start'],
-        },
-      },
-    },
+    // TanStack Start owns rollup input + chunking via Vite Environments.
+    // Don't override `rollupOptions.input` or `manualChunks` here.
+  },
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 
   server: {
     host: true,
-    port: parseInt(process.env.VITE_PORT || "3000", 10),
+    port: parseInt(process.env.VITE_PORT || '5175', 10),
     watch: {
       usePolling: true,
-      interval: 500,  // Increased from 100ms - too aggressive polling can miss changes in Docker
-      ignored: ['**/src/routeTree.gen.ts'],  // Ignore TanStack Router generated file to prevent infinite loops
+      interval: 500,
+      ignored: ['**/src/routeTree.gen.ts'],
     },
     hmr: {
       overlay: true,
-      clientPort: 5175,
+      clientPort: parseInt(process.env.VITE_PORT || '5175', 10),
       protocol: 'ws',
     },
-    middlewareMode: false,
-    fs: {
-      strict: false,
-    },
-    proxy: {
-      '/api': {
-        target: 'http://web:8002',
-        changeOrigin: true,
-        secure: false,
-        cookieDomainRewrite: {
-          "*": ""
-        }
-      },
-      '/admin': {
-        target: 'http://web:8002',
-        changeOrigin: true,
-      },
-      '/static': {
-        target: 'http://web:8002',
-        changeOrigin: true,
-      },
-    }
+    fs: { strict: false },
+    proxy: (() => {
+      const target =
+        process.env.DJANGO_API_URL ||
+        `http://localhost:${process.env.DJANGO_PORT || '8000'}`
+      const cfg = (extra = {}) => ({ target, changeOrigin: true, secure: false, ...extra })
+      return {
+        '/api':       cfg({ cookieDomainRewrite: { '*': '' } }),
+        '/admin':     cfg(),
+        '/static':    cfg(),
+        '/media':     cfg(),
+        '/markdownx': cfg(),
+        '/up':        cfg(),
+      }
+    })(),
   },
 
+  // Plugin order matters:
+  //   tailwindcss → tanstackStart → viteReact → nitro
+  // tanstackStart MUST come BEFORE viteReact.
+  // nitro MUST be present (preset 'bun') for the SSR server bundle.
   plugins: [
-    // Completely skip TanStack Start plugin if:
-    // - DISABLE_ROUTE_GEN is set (Docker environment)
-    // - OR building for production (use pre-generated routeTree.gen.ts from git)
-    ...(process.env.DISABLE_ROUTE_GEN || mode === 'production' ? [] : [
-      tanstackStart({
-        router: {
-          autoCodeSplitting: true,
-          generatedRouteTree: 'routeTree.gen.ts',
-        },
-        enableRouteGeneration: true,
-      }),
-    ]),
-    react(),
-    {
-      name: 'no-cache',
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
-          res.setHeader('Pragma', 'no-cache')
-          res.setHeader('Expires', '0')
-          next()
-        })
+    tailwindcss(),
+    tanstackStart({
+      srcDirectory: 'src',
+      router: {
+        autoCodeSplitting: true,
+        generatedRouteTree: 'src/routeTree.gen.ts',
       },
-    },
+    }),
+    viteReact(),
+    nitro({ preset: 'bun' }),
   ],
-
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-}))
+})

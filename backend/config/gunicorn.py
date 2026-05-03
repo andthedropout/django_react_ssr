@@ -2,7 +2,11 @@
 
 import multiprocessing
 import os
-from distutils.util import strtobool
+
+
+def strtobool(value):
+    """Local replacement for distutils.util.strtobool (removed in Python 3.12+)."""
+    return str(value).lower() in ("y", "yes", "t", "true", "on", "1")
 
 bind = f"0.0.0.0:{os.getenv('PORT', '8080')}"
 accesslog = "-"

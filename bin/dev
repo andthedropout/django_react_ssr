@@ -1,44 +1,32 @@
-#!/bin/bash
-# Development environment launcher with filtered logs
-# Usage: ./bin/dev [up|down|restart|logs]
-
+#!/usr/bin/env bash
+# Dev workflow shortcut. Spins up Vite (HMR) + Django (--reload) + Postgres,
+# tails logs minus the routeTree.gen.ts noise. Source code is bind-mounted
+# from the host (./backend, ./frontend, ./public, ./design-system) so changes
+# reflect immediately without rebuilds.
+#
+#   bin/dev          start + watch + tail
+#   bin/dev down     stop everything
+#   bin/dev restart  restart all services
+#   bin/dev logs     just tail
 set -e
+
+PROFILE="--profile dev"
 
 case "${1:-up}" in
   up)
-    echo "Starting development environment..."
-    docker compose up -d
-    echo ""
-    echo "Services started. Tailing logs (filtered)..."
-    echo "Press Ctrl+C to stop tailing (services will keep running)"
-    echo ""
-    sleep 2
-    # Filter out the annoying TanStack Router warnings
-    docker compose logs -f 2>&1 | grep --line-buffered -v "routeTree.gen.ts was modified by another process"
+    docker compose $PROFILE up -d
+    echo "→ tailing logs (Ctrl+C stops the tail; services keep running)"
+    docker compose $PROFILE logs -f 2>&1 \
+      | grep --line-buffered -v "routeTree.gen.ts was modified by another process"
     ;;
-
-  down)
-    echo "Stopping development environment..."
-    docker compose down
-    ;;
-
-  restart)
-    echo "Restarting development environment..."
-    docker compose restart
-    ;;
-
+  down)    docker compose $PROFILE down ;;
+  restart) docker compose $PROFILE restart ;;
   logs)
-    echo "Tailing logs (filtered)..."
-    docker compose logs -f 2>&1 | grep --line-buffered -v "routeTree.gen.ts was modified by another process"
+    docker compose $PROFILE logs -f 2>&1 \
+      | grep --line-buffered -v "routeTree.gen.ts was modified by another process"
     ;;
-
   *)
-    echo "Usage: $0 [up|down|restart|logs]"
-    echo ""
-    echo "  up       - Start services in background and tail filtered logs (default)"
-    echo "  down     - Stop all services"
-    echo "  restart  - Restart all services"
-    echo "  logs     - Tail filtered logs"
+    echo "Usage: $0 [up|down|restart|logs]" >&2
     exit 1
     ;;
 esac

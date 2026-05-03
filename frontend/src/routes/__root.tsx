@@ -1,5 +1,48 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+/// <reference types="vite/client" />
+import type { ReactNode } from 'react'
+import {
+  Outlet,
+  createRootRoute,
+  HeadContent,
+  Scripts,
+} from '@tanstack/react-router'
+import { RootLayout } from '@/components/layout/RootLayout'
 
 export const Route = createRootRoute({
-  component: () => <Outlet />,
+  head: () => ({
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Django + React Starter' },
+    ],
+    links: [
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      { rel: 'manifest', href: '/site.webmanifest' },
+    ],
+  }),
+  component: RootComponent,
 })
+
+function RootComponent() {
+  return (
+    <RootDocument>
+      <RootLayout>
+        <Outlet />
+      </RootLayout>
+    </RootDocument>
+  )
+}
+
+function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  )
+}

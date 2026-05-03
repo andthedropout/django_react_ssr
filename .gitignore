@@ -41,6 +41,10 @@ media/
 # Static files collected
 public_collected/
 
+# Celery beat runtime state
+celerybeat-schedule
+celerybeat.pid
+
 # Node / Frontend
 node_modules/
 frontend/node_modules/

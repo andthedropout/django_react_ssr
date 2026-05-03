@@ -1,114 +1,114 @@
 # Theme System
 
-This project uses a comprehensive theme system with 35+ pre-built themes. The system is built on CSS variables and provides automatic dark/light mode support.
+45 pre-built JSON themes shipped with the template. Each is a self-contained set of CSS variables (colors, fonts, radii, shadows) for both light and dark modes. The frontend picks one at boot and applies its CSS variables to `:root` (and `.dark` for dark mode).
 
-## Quick Start
+## Quick start
 
-1. **Choose your theme**: Browse available themes in the theme selector or view the complete list below.
-
-2. **Set your preferred theme**: 
-   ```typescript
-   // In globalSettings.ts (root directory):
-   export const PREFERRED_THEME = 'your-theme-name';
+1. Pick a theme name — see the list at the bottom of this file.
+2. Set it in `.env`:
+   ```bash
+   VITE_FRONTEND_THEME=cyberpunk
    ```
+3. Restart the frontend (`bin/dev` or `docker compose --profile prod up --build`).
 
-3. **Theme applies automatically**: The theme system will load your preferred theme on app startup.
+That's it. The theme is fetched from `/static/themes/{name}.json` at boot via `useTheme()` (in `frontend/src/hooks/useTheme.ts`).
 
-## Setting Your Theme
-
-In `globalSettings.ts`:
-
-## How It Works
-
-The theme system is completely self-contained in the frontend:
-
-1. **Theme Selection**: Set your preferred theme in `frontendSettings.ts`
-2. **Theme Loading**: All themes are imported and loaded automatically
-3. **Theme Application**: CSS variables are applied to the document root
-4. **Dark Mode**: Handled entirely by the frontend using CSS classes
-
-## Configuration
-
-### Available Themes
-
-Choose from any of these 38 themes:
-- modern-minimal, t3-chat, twitter, mono, mocha-mousse
-- bubblegum, amethyst-haze, notebook, doom-64, catppuccin
-- graphite, perpetuity, kodama-grove, cosmic-night, tangerine
-- quantum-rose, nature, bold-tech, elegant-luxury, amber-minimal
-- supabase, neo-brutalism, solar-dusk, claymorphism, cyberpunk
-- pastel-dreams, clean-slate, caffeine, ocean-breeze, retro-arcade
-- midnight-bloom, candyland, northern-lights, vintage-paper
-- sunset-horizon, starry-night, claude, vercel
-
-## Runtime Theme Switching
-
-```typescript
-import { setDefaultTheme, getAvailableThemes } from '@/themes/themeConfig';
-
-// Get all available themes
-const themes = getAvailableThemes();
-
-// Switch to a different theme
-setDefaultTheme('cyberpunk');
-
-// Refresh the theme (if using useTheme hook)
-refreshTheme();
-```
-
-## File Structure
+## How it works
 
 ```
-assets/src/themes/
-├── README.md              # This file
-├── themeConfig.ts         # Theme configuration and selection
-├── themeLoader.ts         # JSON import and validation
-├── modern-minimal.json    # Theme JSON files
-├── cyberpunk.json
-├── neo-brutalism.json
-└── ... (all 38 themes)
+design-system/themes/{name}.json    ← canonical source (this folder)
+        │
+        │  served by Django staticfiles + nginx at /static/themes/
+        ↓
+useTheme() in the React app fetches the JSON, applies CSS vars to :root,
+toggles `.dark` on document.documentElement based on user/system preference,
+preloads any Google Fonts the theme references (via useDynamicFonts).
 ```
 
-## Adding New Themes
+Each theme JSON drives:
+- **Color tokens** for both `light` and `dark` modes
+- **Font families** (sans / serif / mono — fetched from Google Fonts at boot if non-system)
+- **Border radii** + **shadow tokens**
+- All values flow through Tailwind 4's `@theme {}` block in `frontend/src/index.css` — your component classes (`bg-primary`, `text-foreground`, `shadow-md`, etc.) automatically respect the active theme.
 
-1. Add the theme JSON file to this folder
-2. Import it in `themeLoader.ts`:
-   ```typescript
-   import newTheme from './new-theme.json';
-   ```
-3. Add it to the `themeImports` object:
-   ```typescript
-   const themeImports = {
-     'new-theme': newTheme,
-     // ... other themes
-   };
-   ```
+No backend involvement. No AI generation. Just static JSON files a developer chooses from.
 
-## Theme JSON Structure
-
-Each theme file contains:
+## Theme JSON shape
 
 ```json
 {
-  "theme_name": "theme-name",
-  "display_name": "Theme Display Name",
+  "theme_name": "my-theme",
+  "display_name": "My Theme",
   "cssVars": {
     "theme": {
-      "font-sans": "Inter, sans-serif",
-      "radius": "0.375rem"
+      "font-sans":  "Inter, sans-serif",
+      "font-serif": "Georgia, serif",
+      "font-mono":  "JetBrains Mono, monospace",
+      "radius":     "0.5rem"
     },
     "light": {
-      "background": "oklch(1 0 0)",
-      "foreground": "oklch(0.15 0 0)",
-      "primary": "oklch(0.6 0.2 280)"
+      "background":              "oklch(1 0 0)",
+      "foreground":              "oklch(0.15 0 0)",
+      "primary":                 "oklch(0.6 0.2 280)",
+      "primary-foreground":      "oklch(1 0 0)",
+      "secondary":               "oklch(0.96 0.005 270)",
+      "secondary-foreground":    "oklch(0.2 0.02 280)",
+      "muted":                   "oklch(0.96 0 0)",
+      "muted-foreground":        "oklch(0.5 0 0)",
+      "accent":                  "oklch(0.95 0.02 280)",
+      "accent-foreground":       "oklch(0.2 0.02 280)",
+      "destructive":             "oklch(0.65 0.25 25)",
+      "destructive-foreground":  "oklch(1 0 0)",
+      "border":                  "oklch(0.92 0 0)",
+      "input":                   "oklch(0.92 0 0)",
+      "ring":                    "oklch(0.6 0.2 280)",
+      "card":                    "oklch(1 0 0)",
+      "card-foreground":         "oklch(0.15 0 0)",
+      "popover":                 "oklch(1 0 0)",
+      "popover-foreground":      "oklch(0.15 0 0)",
+      "shadow":                  "0 1px 2px rgba(0,0,0,0.05)"
+      // ... chart-1..5, sidebar-* etc. (see vercel.json for the canonical full list)
     },
     "dark": {
-      "background": "oklch(0.05 0 0)",
-      "foreground": "oklch(0.95 0 0)",
-      "primary": "oklch(0.7 0.2 280)"
+      // same keys, dark-mode values
     }
   }
 }
 ```
 
-This system provides a complete, self-contained theming solution that works entirely in the frontend. 
+Use OKLCH color space for all colors — Tailwind 4's `@theme` block expects bare OKLCH values (the `oklch(...)` wrapper is stripped at runtime so Tailwind opacity modifiers like `bg-primary/50` work).
+
+## Adding a new theme
+
+1. Drop `my-theme.json` into this folder. Match the structure of an existing one — copy `vercel.json` as a starting point.
+2. Set `VITE_FRONTEND_THEME=my-theme` in `.env`.
+3. Restart the frontend.
+
+No code changes needed. The file is auto-served at `/static/themes/my-theme.json`.
+
+## Switching themes at runtime (per-user)
+
+Currently the active theme is set via `VITE_FRONTEND_THEME` and applied at boot for all users. To support per-user theme switching:
+
+1. Add a state setter to `useTheme()` and persist the choice (e.g. localStorage).
+2. Update the fetch URL to use the user's choice instead of `import.meta.env.VITE_FRONTEND_THEME`.
+3. Provide a UI selector that calls the setter.
+
+Out of scope for the starter — add per-project as needed.
+
+## All 45 themes shipped
+
+```
+amber-minimal      caffeine            cosmic-night        graphite
+amethyst-haze      candyland           cyberpunk           kodama-grove
+bold-tech          catppuccin          doom-64             midnight-bloom
+bubblegum          claude              elegant-luxury      mocha-mousse
+clean-slate        ghibli-studio       modern-minimal      mono
+claymorphism       nature              neo-brutalism       northern-lights
+notebook           ocean-breeze        pastel-dreams       perpetuity
+popstar            quantum-rose        retro-arcade        solar-dusk
+starry-night       sunset-horizon      supabase            t3-chat
+tangerine          twitter             vercel              vintage-paper
+```
+
+Browse them in [tweakcn.com](https://tweakcn.com) — the JSON format here matches their export schema.

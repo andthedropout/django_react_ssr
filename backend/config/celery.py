@@ -4,7 +4,7 @@ from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-app = Celery("trubuilder_landing")
+app = Celery(os.getenv("COMPOSE_PROJECT_NAME", "app"))
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 

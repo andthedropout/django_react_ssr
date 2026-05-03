@@ -13,9 +13,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import socket
 import sys
-from distutils.util import strtobool
 from pathlib import Path
-import dj_database_url # Ensure this import is present
+import dj_database_url
+
+
+def strtobool(value):
+    """Local replacement for `distutils.util.strtobool` (distutils removed in Python 3.12+)."""
+    return str(value).lower() in ("y", "yes", "t", "true", "on", "1")
 
 # Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -91,11 +95,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "markdownx",
     "users",
-    "themes",
-    "blog",
-    "subscribers",
 ]
 
 MIDDLEWARE = [
@@ -224,25 +224,15 @@ else:
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
-# Celery Beat Configuration
-# https://docs.celeryproject.org/en/stable/userguide/periodic-tasks.html
-CELERY_BEAT_SCHEDULE = {
-    'publish-scheduled-posts': {
-        'task': 'blog.tasks.publish_scheduled_posts',
-        'schedule': 60.0,  # Run every 60 seconds (1 minute)
-    },
-}
+# Celery beat: add scheduled tasks here per project. Empty by default.
+CELERY_BEAT_SCHEDULE = {}
 CELERY_TIMEZONE = TIME_ZONE
-
-# Future configurations will be added here as needed
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 STATIC_URL = "/static/"
-# STATIC_ROOT is already defined earlier in the file (line 115)
 
 MEDIA_URL = "/media/"
 # Railway volumes must mount at /mnt/media (NOT /app/media) to avoid directory replacement issues
@@ -259,6 +249,10 @@ if os.path.exists(vite_dist_path):
 
 # Always add public directory for static assets (images, fonts, etc.)
 STATICFILES_DIRS.append(os.path.join(BASE_DIR.parent, "public"))
+
+# Make the design system available at /static/themes/ and /static/backgrounds/.
+# (Single source of truth — `design-system/` is canonical, no public/themes duplicate.)
+STATICFILES_DIRS.append(os.path.join(BASE_DIR.parent, "design-system"))
 
 # Ensure uploads directory is included in static files
 UPLOADS_DIR = os.path.join(BASE_DIR.parent, "public", "uploads")
@@ -277,14 +271,4 @@ if DEBUG:
         "10.0.2.2",
     ]
 
-# OpenRouter AI Configuration
-OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8002')
-
-# Markdownx settings for blog system
-MARKDOWNX_MARKDOWN_EXTENSIONS = [
-    'markdown.extensions.extra',
-    'markdown.extensions.codehilite',
-    'markdown.extensions.toc',
-]
-MARKDOWNX_IMAGE_MAX_SIZE = {'size': (1920, 1080), 'quality': 90}

@@ -1,19 +1,10 @@
 {
-    "name": "TrueBuilder.ai",
-    "short_name": "TrueBuilder",
-    "icons": [
-        {
-            "src": "/android-chrome-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/android-chrome-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ],
-    "theme_color": "#305cde",
-    "background_color": "#ffffff",
-    "display": "standalone"
+  "name": "Starter App",
+  "short_name": "Starter",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "theme_color": "#0f172a",
+  "background_color": "#ffffff",
+  "display": "standalone"
 }

@@ -1,5 +1,5 @@
 """
-WSGI config for trubuilder_landing project.
+WSGI config.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

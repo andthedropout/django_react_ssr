@@ -1,0 +1,58 @@
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+*.egg-info
+.eggs
+.pytest_cache
+.coverage
+htmlcov
+
+# Node / Frontend
+node_modules
+.npm
+.eslintcache
+*.tsbuildinfo
+.vite
+.vite-cache
+frontend/node_modules
+frontend/dist
+frontend/.tanstack
+
+# Build artefacts (rebuilt inside the image)
+public_collected
+staticfiles
+
+# Local-only state
+media
+db.sqlite3
+*.log
+.env
+.env.local
+.env.*.local
+.mcp.json
+
+# Editor / OS
+.idea
+.vscode
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Docs that don't need to ship to the build context
+README.md
+MIGRATION.md
+LICENSE
+
+# CI
+.github

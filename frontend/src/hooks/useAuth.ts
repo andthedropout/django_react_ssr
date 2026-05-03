@@ -67,11 +67,16 @@ export const useAuth = () => {
     window.dispatchEvent(new Event('authChange'));
   };
 
-  const updateUser = (userData: User) => {
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    setIsAuthenticated(true);
-    // Trigger auth change event
+  const updateUser = (userData: User | null) => {
+    if (userData === null) {
+      localStorage.removeItem('user');
+      setUser(null);
+      setIsAuthenticated(false);
+    } else {
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      setIsAuthenticated(true);
+    }
     window.dispatchEvent(new Event('authChange'));
   };
 

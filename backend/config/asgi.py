@@ -1,5 +1,5 @@
 """
-ASGI config for trubuilder_landing project.
+ASGI config.
 
 It exposes the ASGI callable as a module-level variable named `application`.
 
